@@ -36,7 +36,7 @@
 
         </header>
         <main>
-            <div class="closeCartButton" v-if="cartVisibility" v-on:click="cartVisibility=!cartVisibility">X</div>
+            <div class="closeCartButton" v-if="cartVisibility" v-on:click="cartVisibility=!cartVisibility"><i class="fas fa-times"></i></div>
             <div v-if="cartVisibility" class="cartSection">
                 <h3 class="cartHeader" v-if="cartGoods.length>0">Ваша корзина:</h3>
                 <h3 class="cartHeader" v-if="cartGoods.length===0">Ваша корзина пуста!</h3>
