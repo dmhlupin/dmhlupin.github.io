@@ -1,23 +1,23 @@
 [{
-    "id_product": "5041",
+    "id_product": 5041,
     "product_name": "T-Shirt",
     "price": 150,
     "img": "../dist/images/shirt.jpg"
 },
 {
-    "id_product": "2074",
+    "id_product": 2074,
     "product_name": "Socks",
     "price": 50,
     "img": "../dist/images/socks.jpg"
 },
 {
-    "id_product": "3009",
+    "id_product": 3009,
     "product_name": "Jacket",
     "price": 350,
     "img": "../dist/images/jacket.jpg"
 },
 {
-    "id_product": "5173",
+    "id_product": 5173,
     "product_name": "Shoes",
     "price": 250,
     "img": "../dist/images/shoes.jpg"
