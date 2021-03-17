@@ -18,7 +18,7 @@
 },
 {
     "id_product": "5173",
-    "title": "Shoes",
+    "product_name": "Shoes",
     "price": 250,
     "img": "../dist/images/shoes.jpg"
 }]
