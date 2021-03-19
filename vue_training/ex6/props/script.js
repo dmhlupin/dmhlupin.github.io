@@ -47,15 +47,10 @@ const app = new Vue({
             {id: 1002, name: 'Монитор', price: 7400, quantity: 1},
             {id: 1003, name: 'Мышь', price: 600, quantity: 1},
             {id: 1004, name: 'Клавиатура', price: 1200, quantity: 1}
-        ],
+        ]},
         
     methods: {
         addItem(index){this.items[index].quantity += 1},
         removeItem(index){this.items[index].quantity -= 1},
-
-
     }
-
-
-    
 })
