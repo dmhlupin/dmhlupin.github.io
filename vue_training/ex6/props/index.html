@@ -10,7 +10,12 @@
 </head>
 <body>
     <div id="app">
-        <v-body v-bind:items="items" v-bind:quantity="quantity" v-on:quantity="changeQuantity"></v-body>
+        <good-items 
+            :items="items" 
+            v-on:add-item="addItem" 
+            v-on:remove-item="removeItem">
+            
+        </good-items>
     </div>    
 </body>
 </html>
