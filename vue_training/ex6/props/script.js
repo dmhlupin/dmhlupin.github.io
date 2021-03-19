@@ -42,7 +42,7 @@ Vue.component('good-item', {
 const app = new Vue({
     el: "#app",
     data: {
-        items: [
+        gooditems: [
             {id: 1001, name: 'Компьютер', price: 13600, quantity: 1},
             {id: 1002, name: 'Монитор', price: 7400, quantity: 1},
             {id: 1003, name: 'Мышь', price: 600, quantity: 1},
