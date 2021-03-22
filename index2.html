@@ -21,10 +21,12 @@
         <header>
             <div class="logo"><a href="#">eShop</a> </div>
             <button v-if="filteredGoods.length < goods.length" class="clearFilterBtn" v-on:click="clearFilter">Очистить поиск</button>
-            <div class="searchContainer">
-                <input type="text" class="goods-search" v-model="searchLine"/>
-                <button class="search-button" type="button" v-on:click="filterGoods">Искать</button>
-            </div>
+            <search 
+                :sline="searchLine"
+                @start-search = "filterGoods"
+                
+                >
+            </search>
             
             <div class="card-button" v-bind:class="{ cardButtonActive: cartVisibility }" v-on:click="cartVisibility = !cartVisibility">
                 <span>Корзина </span>
@@ -39,11 +41,21 @@
                 v-if='cartVisibility'
                 :cart="cartGoods"
                 :full="fullPrice"
-                @remove="removeItems"
-                @add="addItems"
+                @remove="removeItem"
+                @add="addItem"
+                
                 >
             </cart-items>
-
+            <goods-list 
+                v-if="filteredGoods.length > 0"
+                v-if="connected"
+                :fgoods="filteredGoods"
+                @add="addItem"
+                >
+            </goods-list>
+            <goods-error v-if="!connected"></goods-error>
+            <goods-empty v-else></goods-empty>
         </main>
     </div>
 </body>
+</html>

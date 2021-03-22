@@ -5,39 +5,114 @@ Vue.component('cart-items',{
     template: `
         
         <div class="cartSection">
-            {{cart.length}}
+            <h3 class="cartHeader" v-if="cart.length>0">Ваша корзина:</h3>
+            <h3 class="cartHeader" v-if="cart.length===0">Ваша корзина пуста!</h3>
             <div class="cartItem cartItemNaming" v-if="cart.length>0">
                 <div></div>
                 <h3>Наименование</h3>   
                 <p>Цена</p>
                 <p>Количество</p>
             </div>
-            <div v-for="(item, index) in cart"
+            <cart-item v-for="(item) in cart"
                 v-bind:item="item"
-                v-bind:key="item.id"
-                v-bind:index="index"
+                v-bind:key="item.id_product"
+                
+                v-on:addItem="$emit('add', $event)"
+                v-on:removeItem="$emit('remove', $event)"
                 >
-                    <p>{{item.name}}</p>
-                    <button @click="$emit('remove',index)">Remove
-                    </button>
-                    <button @click="$emit('add',index)">Add
-                    </button>
-            </div>  
+                    
+            </cart-item>  
         </div>
     `
 })
 
 
 Vue.component('cart-item',{
-    props:['item','index'],
+    props:['item'],
+    template: `
+        <div class="cartItem">
+            <img v-bind:src="pathToImage(item.id_product)" class="cartItemImg" alt="No image"></img>
+            <h3>{{item.product_name}}</h3>
+            <p>{{item.price}}</p>
+            <p>{{item.quantity}}</p>
+            <div class="buttonBlock">
+                <div class="removeButton" @click="$emit('removeItem',item.id_product)">
+                    <i class="fas  fa-minus"></i>
+                </div>
+                <div class="addButton" @click="$emit('addItem',item)">
+                    <i class="fas  fa-plus"></i>
+                </div>
+            </div>
+        </div>
+    `,
+    methods: {
+        pathToImage(id) {
+            return `./img/${id}.jpg`;
+        }
+    }
 })
 
+Vue.component('goods-list', {
+    props:['fgoods'],
+    template: `
+    <div class="goods-list">
+        <goods-item v-for="item in fgoods"
+                v-bind:item="item"
+                v-bind:key="item.id_product"
+                @addItem="$emit('add', item)"
+        >
+        </goods-item>
+    </div>
 
+    `
 
+})
 
+Vue.component('goods-item',{
+    props:['item'],
+    template: `
+    <div class="goods-item">
+        <img v-bind:src="pathToImage(item.id_product)" class="itemImg" alt="No image"></img>
+        <h3> {{item.product_name}} </h3>
+        <p> {{item.price}} </p>
+        <div class="addToCart" @click="$emit('addItem', item)"> В корзину </div>
+    </div>`
+        ,
+    methods: {
+        pathToImage(id) {
+            return `./img/${id}.jpg`;
+        }
+    }
 
+})
 
+Vue.component('goods-empty',{
+    template: `
+        <div>По вашему запросу товаров нет</div>
+    `
+})
 
+Vue.component('goods-error',{
+    template: `
+        <div class="error">
+            Доступ к серверу органичен!
+        </div>
+    
+    `
+})
+
+Vue.component('search',{
+    props:['sline'],
+    data(){
+        return {change: this.sline}
+    },
+    template:`
+        <div class="searchContainer">
+            <input type="text" class="goods-search" v-model="change"/>
+            <button class="search-button" type="button" @click="$emit('start-search', change)">Искать</button>
+        </div>
+    `
+})
 
 const app = new Vue({
     el: "#app",
@@ -46,7 +121,8 @@ const app = new Vue({
         cartGoods: [],
         filteredGoods: [],
         searchLine: "",
-        cartVisibility: true
+        cartVisibility: true,
+        connected: true
     },
 
     created() {
@@ -68,10 +144,12 @@ const app = new Vue({
                 console.log(`Загрузка товаров из ${API_URL}/response.json...`)
                 const request = await fetch(`${API_URL}/response.json`);
                 const goods = await request.json();
+                this.connected = true;
                 this.goods = goods;
                 this.filteredGoods = goods;
                 console.log(`Загрузка товаров завершена!`);
             } catch (err) {
+                this.connected = false;
                 console.log(`Невозможно загрузить товары!`, err);
             }
         },
@@ -80,25 +158,64 @@ const app = new Vue({
                 console.log(`Загрузка корзины...`);
                 const response = await fetch(`${API_URL}/getBasket.json`);
                 const goods = await response.json();
+                this.connected = true;
                 this.cartGoods = goods.contents;
                 console.log(`загрузка корзины завершена!`);  
                 console.log(this.cartGoods);  
             } catch (err) {
+                this.connected = false;
                 console.log(err);
             }
         },
-        filterGoods() {
-            const regexp = new RegExp(this.searchLine, 'i');
+        filterGoods(line) {
+            console.log(line);
+            const regexp = new RegExp(line, 'i');
             this.filteredGoods = this.goods.filter(good => regexp.test(good.product_name));
         },
         clearFilter() {
             this.searchLine='';
             this.filterGoods();
         },
-        removeItems(){
+        removeItem(){
 
         },
-        addItems(){}
+        async addItem(item) { // - метод для добавления элемента в корзину
+            try {
+                const answer = await fetch(`${API_URL}/addToBasket.json`);
+                const response = await answer.json();
+                if (response.result !== 0) {
+                    this.connected = true;
+                    const itemIndex = this.cartGoods.findIndex((goodsItem) => goodsItem.id_product === item.id_product);
+                    if (itemIndex > -1) {
+                        this.cartGoods[itemIndex].quantity += 1;
+                    } else {
+                        this.cartGoods.push({
+                            ...item,
+                            quantity: 1
+                        });
+                    }
+                } else {
+                    console.log(`Не получается загрузить корзину на сервер...`)
+                }
+    
+            } catch (err) {
+                this.connected = false;
+                console.log(err)
+            }
+        },
+        removeItem(id) { // - метод удаления элемента из корзины
+            const itemIndex = this.cartGoods.findIndex((goodsItem) => goodsItem.id_product === id);
+            if (itemIndex > -1) {
+                if (this.cartGoods[itemIndex].quantity > 1) {
+                    this.cartGoods[itemIndex].quantity -= 1;
+                } else {
+                    this.cartGoods = this.cartGoods.filter((item) => item.id_product !== +id);
+                }
+            } else {
+                console.log(`Нет такого элемента в корзине`)
+            }
+    
+        }
     }
 
 
