@@ -4,7 +4,7 @@ Vue.component('cart-items',{
     props:['cart','full'],
     template: `
         
-        <div class="cartSection" v-click-outside="$emit('hide')" >
+        <div class="cartSection">
             <h3 class="cartHeader" v-if="cart.length>0">Ваша корзина:</h3>
             <h3 class="cartHeader" v-if="cart.length===0">Ваша корзина пуста!</h3>
             <div class="cartItem cartItemNaming" v-if="cart.length>0">
@@ -25,7 +25,6 @@ Vue.component('cart-items',{
             <div v-if="cart.length>0" class="fullCartPrice">Полная стоимость товаров: {{full}} рублей </div>  
         </div>
     `
-    
 })
 
 
@@ -114,21 +113,6 @@ Vue.component('search',{
     `
 })
 
-Vue.directive('click-outside', {
-    bind: function (el, binding, vnode) {
-        this.event = function (event) {
-          if (!(el == event.target || el.contains(event.target) || event.target.className === "select2-selection__choice__remove" )) {
-            vnode.context[binding.expression](event);
-          }
-        };
-        document.body.addEventListener('click', this.event)
-      },
-      unbind: function (el) {
-        document.body.removeEventListener('click', this.event)
-      },
-    });
-
-
 const app = new Vue({
     el: "#app",
     data: {
@@ -136,7 +120,7 @@ const app = new Vue({
         cartGoods: [],
         filteredGoods: [],
         searchLine: "",
-        cartVisibility: true,
+        cartVisibility: false,
         connected: false
     },
 
@@ -225,12 +209,6 @@ const app = new Vue({
             } else {
                 console.log(`Нет такого элемента в корзине`)
             }
-        },
-        showCart(){
-            this.cartVisibility = true;
-        },
-        hideCart(){
-            this.cartVisibility = false;
         }
     }
 }
