@@ -1,4 +1,4 @@
-const API_URL = 'https://dmhlupin.github.io/';
+const API_URL = 'http://localhost:3000/api';
 
 Vue.component('cart-items',{
     props:['cart','full'],
@@ -140,8 +140,8 @@ const app = new Vue({
     methods: {
         async fetchGoods() {
             try {
-                console.log(`Загрузка товаров из ${API_URL}/response.json...`)
-                const request = await fetch(`${API_URL}/response.json`);
+                console.log(`Загрузка товаров из ${API_URL}/goods.json...`)
+                const request = await fetch(`${API_URL}/goods.json`);
                 const goods = await request.json();
                 this.connected = true;
                 this.goods = goods;
