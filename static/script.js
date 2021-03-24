@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://localhost:3000';
 
 Vue.component('cart-items',{
     props:['cart','full'],
@@ -140,8 +140,8 @@ const app = new Vue({
     methods: {
         async fetchGoods() {
             try {
-                console.log(`Загрузка товаров из ${API_URL}/goods.json...`)
-                const request = await fetch(`${API_URL}/goods.json`);
+                console.log(`Загрузка товаров из ${API_URL}/goods`)
+                const request = await fetch(`${API_URL}/goods`);
                 const goods = await request.json();
                 this.connected = true;
                 this.goods = goods;
@@ -155,8 +155,8 @@ const app = new Vue({
         async fetchCart() {
             try {
                 console.log(`Загрузка корзины...`);
-                const response = await fetch(`${API_URL}/getBasket.json`);
-                const goods = await response.json();
+                const request = await fetch(`${API_URL}/cart`);
+                const goods = await request.json();
                 this.connected = true;
                 this.cartGoods = goods.contents;
                 console.log(`загрузка корзины завершена!`);  
