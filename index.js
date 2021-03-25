@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const app = express();
+const log = require('./log');
 
 app.use(express.static('./static'));
 app.use(express.json());
@@ -18,8 +19,8 @@ app.get('/api/goods', (request, response) => {
             return;
         }
 
-        const goods = JSON.parse(data);
-        console.log(goods);
+        
+        
         return response.send(data);
     });
 })
@@ -47,7 +48,7 @@ app.delete('/api/cart/:id', (request, response) => {
         }
         const cart = JSON.parse(data);
         const id = +request.params.id;
-        console.log(request,' id: ', id);
+        
         const itemIndex = cart.contents.findIndex((goodsItem) => goodsItem.id_product === id);
         if (itemIndex > -1) {
             if (cart.contents[itemIndex].quantity > 1) {
@@ -60,7 +61,7 @@ app.delete('/api/cart/:id', (request, response) => {
         }
         cart.countGoods -= 1;
         cart.amount = cart.contents.reduce((acc, curr) => {return acc + curr.price*curr.quantity}, 0);
-
+        log('delete item', id);
         fs.writeFile('./cart.json', JSON.stringify(cart), (err) => {
             if(err){
                 console.log('Write cart.json error!', err);
@@ -96,18 +97,16 @@ app.post('/api/cart', (request, response) => {
             response.json({ result: 0 });
             return;
         }
-        const cart = JSON.parse(data);
-        console.log(cart.contents[1].product_name);
-        
+        const cart = JSON.parse(data);        
         const item = request.body;
-        console.log('POST item: ', item);
+        
         const itemIndex = cart.contents.findIndex((cartItem) => cartItem.id_product === item.id_product);     
         if(itemIndex > -1){
-            console.log('huvaa!', itemIndex)    ;
+            
             cart.contents[itemIndex].quantity += 1;
         }    
         else {
-            console.log('ei huvaa!', itemIndex);
+            
             cart.contents.push({
                 ...item,
                 quantity: 1
@@ -115,19 +114,8 @@ app.post('/api/cart', (request, response) => {
         }   
         cart.countGoods += 1;
         cart.amount += item.price;
-        const statItem = {
-            action: 'add item to cart',
-            item: item,
-            time: new Date()
-        }
-        console.log(statItem);
-        const newLineChar = process.platform === 'win32' ? '\r\n' : '\n';
-        fs.appendFile('./stats.json', `${newLineChar}${JSON.stringify(statItem)}`, (err) => {
-            if(err){
-                console.log('Write stats.json error!', err);
-                return;
-            }    
-        });
+       
+        log('add item', item.id_product);
         
         fs.writeFile('./cart.json', JSON.stringify(cart), (err) => {
             if(err){
