@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://192.168.88.134:3000/api';
 
 Vue.component('cart-items',{
     props:['cart','full'],
@@ -140,8 +140,8 @@ const app = new Vue({
     methods: {
         async fetchGoods() {
             try {
-                console.log(`Загрузка товаров из ${API_URL}/goods.json...`)
-                const request = await fetch(`${API_URL}/goods.json`);
+                console.log(`Загрузка товаров из ${API_URL}/goods`)
+                const request = await fetch(`${API_URL}/goods`);
                 const goods = await request.json();
                 this.connected = true;
                 this.goods = goods;
@@ -155,8 +155,8 @@ const app = new Vue({
         async fetchCart() {
             try {
                 console.log(`Загрузка корзины...`);
-                const response = await fetch(`${API_URL}/getBasket.json`);
-                const goods = await response.json();
+                const request = await fetch(`${API_URL}/cart`);
+                const goods = await request.json();
                 this.connected = true;
                 this.cartGoods = goods.contents;
                 console.log(`загрузка корзины завершена!`);  
@@ -177,7 +177,15 @@ const app = new Vue({
         },
         async addItem(item) { // - метод для добавления элемента в корзину
             try {
-                const answer = await fetch(`${API_URL}/addToBasket.json`);
+                const answer = await fetch(`${API_URL}/cart`,
+                    {
+                        method: "POST",
+                        body: JSON.stringify(item),
+                        headers: {
+                            'Content-type': 'application/json'
+                        }
+                    }
+                );
                 const response = await answer.json();
                 if (response.result !== 0) {
                     this.connected = true;
@@ -198,7 +206,7 @@ const app = new Vue({
                 console.log(err)
             }
         },
-        removeItem(id) { // - метод удаления элемента из корзины
+        oldRemoveItem(id) { // - метод удаления элемента из корзины
             const itemIndex = this.cartGoods.findIndex((goodsItem) => goodsItem.id_product === id);
             if (itemIndex > -1) {
                 if (this.cartGoods[itemIndex].quantity > 1) {
@@ -209,7 +217,35 @@ const app = new Vue({
             } else {
                 console.log(`Нет такого элемента в корзине`)
             }
+        },
+        async removeItem(id) {
+            try {
+                const answer = await fetch(`${API_URL}/cart/${id}`,
+                    {
+                        method:'DELETE'
+                    }
+                );
+                const response = await answer.json();
+                if(response.result !== 0){
+                    this.connected = true;
+                    const itemIndex = this.cartGoods.findIndex((goodsItem) => goodsItem.id_product === id);
+                    if (itemIndex > -1) {
+                        if (this.cartGoods[itemIndex].quantity > 1) {
+                            this.cartGoods[itemIndex].quantity -= 1;
+                        } else {
+                            this.cartGoods = this.cartGoods.filter((item) => item.id_product !== +id);
+                        }
+                    } else {
+                        console.log(`Нет такого элемента в корзине`)
+                    }
+                }
+            }
+            catch (err) {
+                this.connected = false;
+                console.log(err);
+            }
         }
+
     }
 }
 )
