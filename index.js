@@ -37,6 +37,7 @@ app.get('/api/cart', (request, response) => {
         return response.send(data);
     });
 });
+<<<<<<< HEAD
 
 
 app.delete('/api/cart/:id', (request, response) => {
@@ -84,9 +85,64 @@ app.delete('/api/cart/:id', (request, response) => {
         });
     })
 }
+=======
+>>>>>>> baf305861cbbbb17ce2fccba8e503c28e0e48759
 
 )
 
+<<<<<<< HEAD
+=======
+app.delete('/api/cart/:id', (request, response) => {
+    fs.readFile('./cart.json', 'utf-8', (err, data) => {
+        if(err){
+            console.log('Read cart.json error', err);
+            response.json({ result: 0 });
+            return;
+        }
+        const cart = JSON.parse(data);
+        const id = +request.params.id;
+        
+        const itemIndex = cart.contents.findIndex((goodsItem) => goodsItem.id_product === id);
+        if (itemIndex > -1) {
+            if (cart.contents[itemIndex].quantity > 1) {
+                cart.contents[itemIndex].quantity -= 1;
+            } else {
+                cart.contents = cart.contents.filter((item) => item.id_product !== id);
+            }
+        } else {
+            console.log(`Нет такого элемента в корзине`)
+        }
+        cart.countGoods -= 1;
+        cart.amount = cart.contents.reduce((acc, curr) => {return acc + curr.price*curr.quantity}, 0);
+        log('delete item', id);
+        fs.writeFile('./cart.json', JSON.stringify(cart), (err) => {
+            if(err){
+                console.log('Write cart.json error!', err);
+                response.json(
+                    {
+                        result: 0,
+                        message: 'Error write to cart',
+                        err: err
+                    }
+                );
+                return;
+            }
+            return response.json({ 
+                result: 1, 
+                quantity: cart.amount,
+                cartCount: cart.goodsCount
+            });
+        });
+
+
+
+        response.json({ result: 1 });
+    })
+}
+
+)
+
+>>>>>>> baf305861cbbbb17ce2fccba8e503c28e0e48759
 app.post('/api/cart', (request, response) => {
     console.log('/cart POST route handler', request.ip);
     fs.readFile('./cart.json', 'utf-8', (err,data) => {
@@ -97,7 +153,10 @@ app.post('/api/cart', (request, response) => {
         }
         const cart = JSON.parse(data);        
         const item = request.body;
+<<<<<<< HEAD
         const ip = request.ip;
+=======
+>>>>>>> baf305861cbbbb17ce2fccba8e503c28e0e48759
         
         const itemIndex = cart.contents.findIndex((cartItem) => cartItem.id_product === item.id_product);     
         if(itemIndex > -1){
@@ -114,7 +173,11 @@ app.post('/api/cart', (request, response) => {
         cart.countGoods += 1;
         cart.amount += item.price;
        
+<<<<<<< HEAD
         log('add item', item.id_product, ip);
+=======
+        log('add item', item.id_product);
+>>>>>>> baf305861cbbbb17ce2fccba8e503c28e0e48759
         
         fs.writeFile('./cart.json', JSON.stringify(cart), (err) => {
             if(err){
