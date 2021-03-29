@@ -5,14 +5,14 @@ const fs = require('fs');
 const app = express();
 const log = require('./log');
 
-app.use(express.static('./static'));
+app.use(express.static('./dist'));
 app.use(express.json());
 app.use(cors());
 
 app.get('/api/goods', (request, response) => {
     
     console.log('/goods route handler', request.ip);
-    fs.readFile('./goods.json', 'utf-8', (err,data) => {
+    fs.readFile('./dist/goods.json', 'utf-8', (err,data) => {
         if(err){
             console.log('Read goods.json error', err);
             response.send('Read goods.json error');
@@ -27,7 +27,7 @@ app.get('/api/goods', (request, response) => {
 app.get('/api/cart', (request, response) => {
     
     console.log('/cart route handler', request.ip);
-    fs.readFile('./cart.json', 'utf-8', (err,data) => {
+    fs.readFile('./dist/cart.json', 'utf-8', (err,data) => {
         if(err){
             console.log('Read cart.json error', err);
             response.send('Read cart.json error');
@@ -40,7 +40,7 @@ app.get('/api/cart', (request, response) => {
 
 
 app.delete('/api/cart/:id', (request, response) => {
-    fs.readFile('./cart.json', 'utf-8', (err, data) => {
+    fs.readFile('./dist/cart.json', 'utf-8', (err, data) => {
         if(err){
             console.log('Read cart.json error', err);
             response.json({ result: 0 });
@@ -48,7 +48,7 @@ app.delete('/api/cart/:id', (request, response) => {
         }
         const cart = JSON.parse(data);
         const id = +request.params.id;
-        const name = request.params.name;
+        
         const ip = request.ip;
         
         const itemIndex = cart.contents.findIndex((goodsItem) => goodsItem.id_product === id);
@@ -63,8 +63,8 @@ app.delete('/api/cart/:id', (request, response) => {
         }
         cart.countGoods -= 1;
         cart.amount = cart.contents.reduce((acc, curr) => {return acc + curr.price*curr.quantity}, 0);
-        log('delete item', id, name, ip);
-        fs.writeFile('./cart.json', JSON.stringify(cart), (err) => {
+        log('delete item', id, ip);
+        fs.writeFile('./dist/cart.json', JSON.stringify(cart), (err) => {
             if(err){
                 console.log('Write cart.json error!', err);
                 response.json(
@@ -89,7 +89,7 @@ app.delete('/api/cart/:id', (request, response) => {
 
 app.post('/api/cart', (request, response) => {
     console.log('/cart POST route handler', request.ip);
-    fs.readFile('./cart.json', 'utf-8', (err,data) => {
+    fs.readFile('./dist/cart.json', 'utf-8', (err,data) => {
         if(err){
             console.log('Read cart.json error', err);
             response.json({ result: 0 });
@@ -116,7 +116,7 @@ app.post('/api/cart', (request, response) => {
        
         log('add item', item.id_product, ip);
         
-        fs.writeFile('./cart.json', JSON.stringify(cart), (err) => {
+        fs.writeFile('./dist/cart.json', JSON.stringify(cart), (err) => {
             if(err){
                 console.log('Write cart.json error!', err);
                 response.json(

@@ -1,6 +1,6 @@
 const fs = require('fs').promises;
 console.log('Запись статистики...')
-async function log (type, id, name, client_ip) {
+async function log (type, id, client_ip) {
     try{
         const data = await fs.readFile('./stats.json', 'utf-8');
         const logData = JSON.parse(data);
@@ -8,11 +8,11 @@ async function log (type, id, name, client_ip) {
         const actionObj = {
             type,
             id,
-            name,
             time: (new Date()).toISOString(),
             client_ip
         };
         logData.push(actionObj);
+        console.log(actionObj);
         
         await fs.writeFile('./stats.json', JSON.stringify(logData));
     }
